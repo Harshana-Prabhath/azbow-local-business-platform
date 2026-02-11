@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from 'bcryptjs';
-import { db } from '@/lib/db';
-import { error } from "console";
+import { db } from "@/lib/db";
+
 
 export async function POST(request: Request) {
     try{
@@ -33,6 +33,14 @@ export async function POST(request: Request) {
         return NextResponse.json({message: "User registered successfully"}, {status: 201});
 
     }catch(error){
-        return NextResponse.json({error: "User registration failed"}, {status: 500});
+        
+       let errorMessage = "User registration failed";
+
+    if (error instanceof Error) {
+        errorMessage = error.message;
+    }
+
+    console.error("REGISTRATION_ERROR:", errorMessage);
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
 }

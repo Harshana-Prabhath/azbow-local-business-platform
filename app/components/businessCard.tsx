@@ -2,13 +2,13 @@ import { Store, MoreVertical, Edit2, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface BusinessCardProps {
-  id: number;
+  id: string;
   name: string;
   category: string;
-  status: 'Active' | 'Draft';
+  status: string;
   logo?: string;
-  onEdit?: (id: number) => void;
-  onDelete?: (id: number) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 export default function BusinessCard({ 

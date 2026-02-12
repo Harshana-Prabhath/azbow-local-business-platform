@@ -1,10 +1,11 @@
 "use client";
 import { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff, Search, Store, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Search, Store, Loader2, User } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function App() {
+  const[name,setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -34,7 +35,7 @@ export default function App() {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({email,password, role}),
+        body: JSON.stringify({name,email,password, role}),
     })
 
     const data = await response.json();
@@ -66,6 +67,26 @@ export default function App() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="name"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  className="w-full pl-12 pr-4 text-black py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1e3a8a] focus:border-transparent outline-none transition-all"
+                  required
+                />
+              </div>
+            </div>
             
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">

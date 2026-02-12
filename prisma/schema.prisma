@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -19,26 +13,39 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  role          Role      @default(USER)
-  businesses    Business[]
-  bookmarks     Bookmark[]
-  createdAt     DateTime  @default(now())
+  id         String     @id @default(cuid())
+  name       String?
+  email      String     @unique
+  password   String
+  role       Role       @default(USER)
+  businesses Business[]
+  bookmarks  Bookmark[]
+  createdAt  DateTime   @default(now())
 }
 
 model Business {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   category    String
   location    String
-  services    String   @db.Text
-  description String   @db.Text
+  phone       String?
+  email       String?
+  website     String?
+  description String     @db.Text
   logoUrl     String?
   ownerId     String
-  owner       User     @relation(fields: [ownerId], references: [id])
+  owner       User       @relation(fields: [ownerId], references: [id])
+  services    Service[]
   bookmarks   Bookmark[]
+  createdAt   DateTime   @default(now())
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
 }
 

@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Mail, Lock, Eye, EyeOff, Store, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { signIn } from 'next-auth/react';
+import { getSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
@@ -27,9 +27,16 @@ export default function LoginPage() {
     if (res?.error) {
       setError('Invalid email or password');
       setIsLoading(false);
-    } else {
-      router.push('/dashboard');
-      router.refresh();
+    } 
+    const session = await getSession();
+    if(session?.user?.role === "OWNER"){
+      router.push('/dashboard/owner');
+      
+    }else if (session?.user?.role === "USER"){
+      router.push('/dashboard/user');
+    }else {
+      setError('User role is not defined');
+      setIsLoading(false);
     }
   };
 

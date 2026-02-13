@@ -2,15 +2,17 @@
 import { useState } from 'react';
 import { X, Loader2, Building2, MapPin, Globe, Phone, Mail, FileText, ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { UploadButton } from "@uploadthing/react";
+import { OurFileRouter } from '../api/uploadthing/core';
+import { useCreateBusiness } from '@/services/businessHooks';
 
 interface AddBusinessModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (newBusiness: any) => void;
 }
 
-export default function AddBusinessModal({ isOpen, onClose, onSuccess }: AddBusinessModalProps) {
-  const [isLoading, setIsLoading] = useState(false);
+export default function AddBusinessModal({ isOpen, onClose }: AddBusinessModalProps) {
+  const createBusiness = useCreateBusiness();
   const [formData, setFormData] = useState({
     name: '',
     category: '',
@@ -24,31 +26,17 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: AddBusi
 
   if (!isOpen) return null;
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/businesses', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) throw new Error('Failed to create business');
-
-      const data = await response.json();
-      toast.success('Business created successfully');
-      onSuccess(data);
-      onClose();
-      setFormData({
-        name: '', category: '', location: '', phone: '', email: '', website: '', description: '', logoUrl: ''
-      });
-    } catch (error) {
-      toast.error('Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+    
+    createBusiness.mutate(formData, {
+      onSuccess: () => {
+        onClose();
+        setFormData({
+          name: '', category: '', location: '', phone: '', email: '', website: '', description: '', logoUrl: ''
+        });
+      }
+    });
   };
 
   return (
@@ -153,17 +141,43 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: AddBusi
               />
             </div>
 
-             <div className="space-y-2">
+            <div className="space-y-2 md:col-span-2 p-4 border-2 border-dashed border-gray-100 rounded-xl">
               <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-                <ImageIcon className="w-4 h-4 text-gray-400" /> Logo URL
+                <ImageIcon className="w-4 h-4 text-gray-400" /> Business Logo (Optional)
               </label>
-              <input
-                type="url"
-                placeholder="https://..."
-                value={formData.logoUrl}
-                onChange={(e) => setFormData({ ...formData, logoUrl: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#1e3a8a] focus:border-transparent outline-none transition-all text-gray-900 placeholder:text-gray-400"
-              />
+              
+              <div className="flex items-center gap-4">
+                {formData.logoUrl ? (
+                  <div className="relative w-20 h-20">
+                    <img 
+                      src={formData.logoUrl} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover rounded-lg border" 
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({ ...formData, logoUrl: '' })}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <UploadButton<OurFileRouter, "imageUploader">
+                    endpoint="imageUploader"
+                    onClientUploadComplete={(res) => {
+                      if (res && res[0]) {
+                        setFormData({ ...formData, logoUrl: res[0].url });
+                        toast.success("Logo uploaded!");
+                      }
+                    }}
+                    onUploadError={(error: Error) => {
+                      toast.error(`Upload failed: ${error.message}`);
+                    }}
+                  />
+                )}
+              </div>
+              <p className="text-xs text-gray-400">If skipped, a default banner will be used.</p>
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -185,17 +199,17 @@ export default function AddBusinessModal({ isOpen, onClose, onSuccess }: AddBusi
             <button
               type="button"
               onClick={onClose}
-              disabled={isLoading}
+              disabled={createBusiness.isPending}
               className="px-5 py-2.5 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={createBusiness.isPending}
               className="px-5 py-2.5 rounded-lg bg-[#1e3a8a] text-white font-medium hover:bg-[#1e3a8a]/90 transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
+              {createBusiness.isPending ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Creating...

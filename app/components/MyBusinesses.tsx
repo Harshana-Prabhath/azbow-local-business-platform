@@ -1,9 +1,10 @@
 'use client';
-import { useState, useEffect } from 'react';
-import { Plus, Search, Building2 } from 'lucide-react';
+
+import { useState } from 'react';
+import { Plus, Search, Building2, Loader2 } from 'lucide-react';
 import BusinessCard from './businessCard';
-import { toast } from 'sonner';
 import AddBusinessModal from './AddBusinessModal';
+import { useDeleteBusiness, useGetBusinesses } from '@/services/businessHooks';
 
 interface Business {
   id: string;
@@ -16,21 +17,12 @@ interface Business {
 
 export default function MyBusinesses() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  
-  useEffect(() => {
-    
-    setBusinesses([
-       { id: '1', name: "Joe's Coffee Shop", category: "Food & Beverage", location: "NY", status: "Active" },
-       { id: '2', name: "TechFix Solutions", category: "Technology", location: "SF", status: "Active" },
-    ]);
-    setLoading(false);
-  }, []);
+  const { data: businesses, isLoading, isError } = useGetBusinesses();
+  const deleteMutation = useDeleteBusiness();
 
-  const filteredBusinesses = businesses.filter(business =>
+  const filteredBusinesses = businesses?.filter(business =>
     business.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     business.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -41,18 +33,12 @@ export default function MyBusinesses() {
 
   const handleDelete = (id: string) => {
     if (window.confirm(`Are you sure you want to delete this business?`)) {
-      setBusinesses(businesses.filter(b => b.id !== id));
-      toast.success('Business deleted successfully');
+      deleteMutation.mutate(id);
     }
   };
 
-  const handleBusinessCreated = (newBusiness: Business) => {
-    
-    setBusinesses((prev) => [
-        ...prev, 
-        { ...newBusiness, status: 'Active' } 
-    ]);
-  };
+  if (isLoading) return <div className="flex py-20"><Loader2 className="animate-spin mx-auto w-10 h-10 text-[#1e3a8a]" /></div>;
+  if (isError) return <p className="text-center text-red-500 py-20">Failed to load data. Please check your connection.</p>;
 
   return (
     <div>
@@ -84,32 +70,36 @@ export default function MyBusinesses() {
         </div>
       </div>
 
-      {filteredBusinesses.length === 0 ? (
+      {!businesses || businesses.length === 0 ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Building2 className="w-8 h-8 text-[#1e3a8a]" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-900 mb-2">No businesses yet</h3>
+          <p className="text-gray-600 mb-8 max-w-sm mx-auto">
+            You haven't registered any businesses. Create your first business profile to start connecting with the community.
+          </p>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center space-x-2 bg-[#1e3a8a] text-white px-8 py-3 rounded-lg hover:bg-[#1e3a8a]/90 transition-all shadow-md"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="font-semibold">Create New Business</span>
+          </button>
+        </div>
+      ) : filteredBusinesses?.length === 0 ? (
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Building2 className="w-8 h-8 text-gray-400" />
+            <Search className="w-8 h-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            {searchQuery ? 'No businesses found' : 'No businesses yet'}
-          </h3>
-          <p className="text-gray-600 mb-6">
-            {searchQuery 
-              ? 'Try adjusting your search query' 
-              : 'Start by adding your first business profile'}
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">No results found</h3>
+          <p className="text-gray-600">
+            We couldn't find any business matching "<strong>{searchQuery}</strong>".
           </p>
-          {!searchQuery && (
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center space-x-2 bg-[#1e3a8a] text-white px-5 py-3 rounded-lg hover:bg-[#1e3a8a]/90 transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              <span className="font-medium">Add Business</span>
-            </button>
-          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredBusinesses.map((business) => (
+          {filteredBusinesses?.map((business) => (
             <BusinessCard
               key={business.id}
               id={business.id} 
@@ -127,7 +117,6 @@ export default function MyBusinesses() {
       <AddBusinessModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={handleBusinessCreated}
       />
     </div>
   );

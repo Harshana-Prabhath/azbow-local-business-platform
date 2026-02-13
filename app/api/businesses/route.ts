@@ -38,3 +38,24 @@ export async function POST(req: Request) {
     return new NextResponse('Internal Error', { status: 500 });
   }
 }
+
+
+export async function GET(){
+  const session = await getServerSession(authOptions);
+
+  if (!session || session.user.role !== "OWNER") {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try{
+    const ownerbusinesses = await db.business.findMany({
+      where: { ownerId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    return NextResponse.json(ownerbusinesses);
+  }catch(error){
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500
+    })
+  }
+
+}

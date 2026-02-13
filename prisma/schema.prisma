@@ -37,6 +37,8 @@ model Business {
   owner       User       @relation(fields: [ownerId], references: [id])
   services    Service[]
   bookmarks   Bookmark[]
+  viewCount   Int      @default(0)
+  contactCount Int     @default(0)
   createdAt   DateTime   @default(now())
 }
 

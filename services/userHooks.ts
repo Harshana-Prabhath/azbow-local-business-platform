@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 interface SearchParams {
@@ -22,6 +22,7 @@ export const useSearchBusinesses = (params: SearchParams) => {
       if (!res.ok) throw new Error('Failed to fetch businesses');
       return res.json();
     },
+    placeholderData: keepPreviousData,
   });
 };
 

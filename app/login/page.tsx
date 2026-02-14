@@ -27,13 +27,14 @@ export default function LoginPage() {
     if (res?.error) {
       setError('Invalid email or password');
       setIsLoading(false);
+      return;
     } 
     const session = await getSession();
     if(session?.user?.role === "OWNER"){
       router.push('/dashboard/owner');
       
     }else if (session?.user?.role === "USER"){
-      router.push('/dashboard/user');
+      router.push('/discover');
     }else {
       setError('User role is not defined');
       setIsLoading(false);

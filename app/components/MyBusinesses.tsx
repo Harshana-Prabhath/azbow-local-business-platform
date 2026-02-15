@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { useGetBusinesses } from '@/services/businessHooks';
 import { Loader2, Plus, Store, MapPin, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import AddBusinessModal from './AddBusinessModal';
 
 export default function OwnerDashboard() {
   const [page, setPage] = useState(1);
   const { data, isLoading, isError } = useGetBusinesses(page);
+  const[isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   if (isLoading) {
     return (
@@ -28,13 +30,13 @@ export default function OwnerDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">My Businesses</h1>
           <p className="text-gray-600 mt-1">Manage your business profiles</p>
         </div>
-        <Link
-          href="/dashboard/new"
+       <button
+          onClick={() => setIsAddModalOpen(true)}
           className="inline-flex items-center gap-2 bg-[#1e3a8a] text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-[#162d6b] transition-all"
         >
           <Plus className="w-5 h-5" />
           Add Business
-        </Link>
+        </button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -94,6 +96,10 @@ export default function OwnerDashboard() {
           </button>
         </div>
       )}
+      <AddBusinessModal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)} 
+      />
     </div>
   );
 }

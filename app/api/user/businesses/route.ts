@@ -52,6 +52,7 @@ export async function GET(req: Request) {
       businesses: formattedBusinesses,
       totalPages: Math.ceil(totalCount / limit),
       currentPage: page,
+      totalCount,
     });
   } catch (error) {
     return new NextResponse('Internal Error', { status: 500 });

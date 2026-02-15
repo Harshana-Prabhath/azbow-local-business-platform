@@ -67,3 +67,14 @@ export const useGetUserBookmarks = () => {
     },
   });
 };
+
+export const useTrackEngagement = () => {
+  return useMutation({
+    mutationFn: async (data: { businessId: string; type: 'view' | 'contact' }) => {
+      await fetch('/api/engagement', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
+    },
+  });
+};

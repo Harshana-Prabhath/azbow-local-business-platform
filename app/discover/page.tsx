@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, MapPin, ChevronDown, Heart, Loader2 } from 'lucide-react';
+import { Search, MapPin, ChevronDown, Heart, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchBusinesses, useToggleBookmark } from '@/services/userHooks';
 import { useDebounce } from 'use-debounce';
@@ -96,7 +96,7 @@ export default function UserDiscoveryDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{data?.businesses.length || 0} Businesses Found</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{data?.totalCount || 0} Businesses Found</h2>
         </div>
 
         {isLoading ? (
@@ -155,21 +155,25 @@ export default function UserDiscoveryDashboard() {
         )}
 
         {data?.totalPages > 1 && (
-          <div className="flex items-center justify-center space-x-2 mt-10">
+          <div className="flex items-center justify-center space-x-4 mt-10">
             <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
               disabled={currentPage === 1}
-              className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Previous
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
             </button>
-            <span className="text-gray-700">Page {currentPage} of {data.totalPages}</span>
+            
+            <span className="text-sm font-medium text-gray-700">
+              Page {currentPage} of {data.totalPages}
+            </span>
+
             <button
-              onClick={() => setCurrentPage(p => Math.min(data.totalPages, p + 1))}
+              onClick={() => setCurrentPage((p) => Math.min(data.totalPages, p + 1))}
               disabled={currentPage === data.totalPages}
-              className="px-4 py-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="p-2 border rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              Next
+              <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
           </div>
         )}

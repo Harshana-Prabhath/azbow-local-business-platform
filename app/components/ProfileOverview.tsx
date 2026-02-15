@@ -16,8 +16,7 @@ import {
 } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useEffect } from 'react';
-import { useGetBusinessById, useTrackEngagement } from '@/services/businessHooks';
+import { useGetBusinessById } from '@/services/businessHooks';
 import Breadcrumbs from '@/app/components/Breadcrumbs';
 
 export default function ProfileOverview() {
@@ -25,17 +24,6 @@ export default function ProfileOverview() {
   const id = params.id as string;
 
   const { data: business, isLoading, isError } = useGetBusinessById(id);
-  const engagement = useTrackEngagement();
-
-  useEffect(() => {
-    if (id) {
-      engagement.mutate({ id, type: 'view' });
-    }
-  }, [id]);
-
-  const handleContactClick = () => {
-    engagement.mutate({ id, type: 'contact' });
-  };
 
   if (isLoading) {
     return (
@@ -123,11 +111,7 @@ export default function ProfileOverview() {
                   <div className="p-2 bg-gray-50 rounded-lg"><Phone className="w-5 h-5 text-gray-400" /></div>
                   <div>
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Phone</p>
-                    <a 
-                      href={`tel:${business.phone}`} 
-                      onClick={handleContactClick}
-                      className="text-[#1e3a8a] font-semibold hover:underline"
-                    >
+                    <a href={`tel:${business.phone}`} className="text-[#1e3a8a] font-semibold hover:underline">
                       {business.phone || 'Not provided'}
                     </a>
                   </div>
@@ -143,12 +127,7 @@ export default function ProfileOverview() {
                   <div className="p-2 bg-gray-50 rounded-lg"><Globe className="w-5 h-5 text-gray-400" /></div>
                   <div>
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Website</p>
-                    <a 
-                      href={business.website?.startsWith('http') ? business.website : `https://${business.website}`} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-[#1e3a8a] font-semibold hover:underline"
-                    >
+                    <a href={business.website} target="_blank" rel="noopener noreferrer" className="text-[#1e3a8a] font-semibold hover:underline">
                       {business.website || 'Not provided'}
                     </a>
                   </div>

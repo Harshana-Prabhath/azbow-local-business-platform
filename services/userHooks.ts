@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 interface SearchParams {
@@ -22,6 +22,7 @@ export const useSearchBusinesses = (params: SearchParams) => {
       if (!res.ok) throw new Error('Failed to fetch businesses');
       return res.json();
     },
+    placeholderData: keepPreviousData,
   });
 };
 
@@ -63,6 +64,17 @@ export const useGetUserBookmarks = () => {
       const res = await fetch('/api/user/bookmarks');
       if (!res.ok) throw new Error('Failed to load bookmarks');
       return res.json();
+    },
+  });
+};
+
+export const useTrackEngagement = () => {
+  return useMutation({
+    mutationFn: async (data: { businessId: string; type: 'view' | 'contact' }) => {
+      await fetch('/api/engagement', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      });
     },
   });
 };

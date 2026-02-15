@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import { ArrowLeft, Heart, MapPin, Phone, Mail, Globe, Share2, ChevronRight, Home, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { useGetBusinessDetails, useToggleBookmark } from '@/services/userHooks';
+import { useGetBusinessDetails, useToggleBookmark, useTrackEngagement } from '@/services/userHooks';
 import { toast } from 'sonner';
+import TopNavigation from '@/app/components/TopNavigation';
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
@@ -16,7 +17,14 @@ export default function BusinessDetailedView({ params }: { params: Promise<{ id:
   const unwrappedParams = use(params);
   const { data: business, isLoading } = useGetBusinessDetails(unwrappedParams.id);
   const toggleBookmark = useToggleBookmark();
+  const engagement = useTrackEngagement();
   const [linkCopied, setLinkCopied] = useState(false);
+
+  useEffect(() => {
+    if (unwrappedParams.id) {
+      engagement.mutate({ businessId: unwrappedParams.id, type: 'view' });
+    }
+  }, [unwrappedParams.id]);
 
   if (isLoading) return <div className="flex h-screen items-center justify-center"><Loader2 className="w-10 h-10 animate-spin text-[#1e3a8a]" /></div>;
   if (!business) return <div className="text-center py-20 text-red-500">Business not found</div>;
@@ -24,6 +32,9 @@ export default function BusinessDetailedView({ params }: { params: Promise<{ id:
   const handleWhatsAppContact = () => {
     const phoneNumber = business.phone?.replace(/\D/g, '');
     if (!phoneNumber) return toast.error('Phone number not available');
+    
+    engagement.mutate({ businessId: business.id, type: 'contact' });
+
     const message = encodeURIComponent(`Hi! I found your business on Team Azbow and would like to learn more.`);
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
@@ -37,6 +48,7 @@ export default function BusinessDetailedView({ params }: { params: Promise<{ id:
 
   return (
     <div className="min-h-screen bg-[#f9fafb]">
+      <TopNavigation />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center space-x-2 text-sm mb-6">
           <Link href="/discover" className="flex items-center text-gray-600 hover:text-[#1e3a8a]">
@@ -76,7 +88,7 @@ export default function BusinessDetailedView({ params }: { params: Promise<{ id:
                 <WhatsAppIcon /> <span>Contact on WhatsApp</span>
               </button>
               <button onClick={() => toggleBookmark.mutate(business.id)} className="flex items-center justify-center space-x-3 px-6 py-4 rounded-xl font-semibold bg-white text-[#1e3a8a] border-2 border-[#1e3a8a] hover:bg-blue-50">
-                <Heart className="w-5 h-5" /> <span>Bookmark</span>
+                <Heart className={`w-5 h-5 ${business.isBookmarked ? 'fill-current' : ''}`} /> <span>{business.isBookmarked ? 'Saved' : 'Bookmark'}</span>
               </button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export interface Business {
@@ -20,6 +20,12 @@ export interface Service {
   id: string;
   title: string;
   description?: string;
+}
+
+interface BusinessesResponse {
+  businesses: Business[];
+  totalPages: number;
+  currentPage: number;
 }
 
 export const useGetBusinessById = (id: string) => {
@@ -55,14 +61,15 @@ export const useTrackEngagement = () => {
 };
 
 
-export const useGetBusinesses = () => {
-  return useQuery<Business[], Error>({
-    queryKey: ['businesses'],
+export const useGetBusinesses = (page: number = 1) => {
+  return useQuery<BusinessesResponse, Error>({
+    queryKey: ['businesses', page],
     queryFn: async () => {
-      const response = await fetch('/api/businesses');
+      const response = await fetch(`/api/businesses?page=${page}`);
       if (!response.ok) throw new Error('Failed to fetch businesses');
       return response.json();
     },
+    placeholderData: keepPreviousData,
   });
 };
 

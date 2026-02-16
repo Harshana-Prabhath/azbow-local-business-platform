@@ -61,15 +61,14 @@ export const useTrackEngagement = () => {
 };
 
 
-export const useGetBusinesses = (page: number = 1) => {
-  return useQuery<BusinessesResponse, Error>({
-    queryKey: ['businesses', page],
+export const useGetBusinesses = () => {
+  return useQuery<Business[], Error>({
+    queryKey: ['businesses'],
     queryFn: async () => {
-      const response = await fetch(`/api/businesses?page=${page}`);
+      const response = await fetch('/api/businesses');
       if (!response.ok) throw new Error('Failed to fetch businesses');
       return response.json();
     },
-    placeholderData: keepPreviousData,
   });
 };
 

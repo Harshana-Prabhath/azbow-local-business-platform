@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Team Azbow - Local Business Directory
 
-## Getting Started
 
-First, run the development server:
+
+## 🚀 Features
+
+* **Role-Based Authentication:** Secure login for **Business Owners** and **Regular Users**.
+* **Owner Dashboard:**
+* Create, edit, and manage business profiles.
+* View engagement insights (Profile Views, Contact Clicks).
+* Upload business logos.
+* **Discovery Platform:**
+* Search businesses by name or description.
+* **Filter** by Category and Location.
+* **Sort** results (Newest, Oldest, A-Z, Z-A).
+* Pagination for seamless browsing.
+* **User Interaction:**
+* View detailed business profiles.
+* **Contact via WhatsApp** integration.
+* **Bookmark** favorite businesses for quick access.
+
+## 🛠️ Tech Stack
+
+* **Framework:** [Next.js 14](https://nextjs.org/) (App Router)
+* **Language:** TypeScript
+* **Database:** Prisma ORM with MySQL
+* **Styling:** Tailwind CSS
+* **Auth:** NextAuth.js
+* **State Management:** TanStack Query (React Query)
+* **File Storage:** UploadThing
+* **Icons:** Lucide React
+* **Validation:** Zod + React Hook Form
+
+---
+
+## ⚙️ Getting Started
+
+
+
+Follow these instructions to set up the project locally on your machine.
+
+### 1. Prerequisites
+
+Ensure you have the following installed:
+* [Node.js](https://nodejs.org/) (v18 or higher)
+* [MySQL](https://www.mysql.com/) (Running locally on port 3306)
+
+### 2. Clone the Repository
+
+```bash
+git clone <repository-url>
+cd team-azbow
+
+```
+
+### 3. Install Dependencies
+
+```bash
+npm install
+# or
+yarn install
+# or
+bun install
+```
+### 4. Environment Variable Setup
+
+Create a .env file in the root directory of the project. You can refer to the example below.
+```bash
+# Database Configuration (MySQL)
+DATABASE_URL="mysql://root:password@localhost:3306/azbow_assignment"
+DATABASE_HOST="localhost"
+DATABASE_USER="root"
+DATABASE_PASSWORD="your_database_password"
+DATABASE_NAME="azbow_assignment"
+DATABASE_PORT=3306
+
+# NextAuth Configuration
+NEXTAUTH_SECRET="your_generated_secret_key"
+NEXTAUTH_URL="http://localhost:3000"
+
+# UploadThing Configuration (File Uploads)
+UPLOADTHING_TOKEN="your_uploadthing_api_token"
+```
+
+### 5. Settin up UploadThing(Image Storage)
+
+This project uses UploadThing to store business logos. You must set this up for image uploads to work.
+
+1. Go to UploadThing.com and sign in (you can use GitHub).
+2. Click "Create a new app".
+3. Give your app a name (e.g., "team-azbow-local") and click Create App.
+4. In your app dashboard, go to the "API Keys" tab on the left sidebar.
+5. Copy the api key and paste it in the env file
+
+### 6. Database Setup
+
+Synchronize your database schema using Prisma.
+# Generate Prisma Client
+npx prisma generate
+
+# Push the schema to your database (for prototyping)
+npx prisma db push
+
+### 7. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open http://localhost:3000 with your browser to see the result.

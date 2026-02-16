@@ -41,56 +41,22 @@ export async function POST(req: Request) {
 }
 
 
-export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const session = await getServerSession(authOptions);
-    const userId = session?.user?.id;
+export async function GET(){
+  const session = await getServerSession(authOptions);
 
-    const query = searchParams.get('query') || '';
-    const category = searchParams.get('category') || 'All';
-    const location = searchParams.get('location') || 'All Locations';
-    const page = parseInt(searchParams.get('page') || '1');
-    const limit = 6;
-    const skip = (page - 1) * limit;
-
-    const whereClause: Prisma.BusinessWhereInput = {
-      AND: [
-        {
-          OR: [
-            { name: { contains: query } },
-            { description: { contains: query } },
-          ],
-        },
-        category !== 'All' ? { category } : {},
-        location !== 'All Locations' ? { location: { contains: location } } : {},
-      ],
-    };
-
-    const [businesses, totalCount] = await Promise.all([
-      db.business.findMany({
-        where: whereClause,
-        take: limit,
-        skip: skip,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          bookmarks: userId ? { where: { userId } } : false,
-        },
-      }),
-      db.business.count({ where: whereClause }),
-    ]);
-
-    const formattedBusinesses = businesses.map((b) => ({
-      ...b,
-      isBookmarked: userId ? b.bookmarks.length > 0 : false,
-    }));
-
-    return NextResponse.json({
-      businesses: formattedBusinesses,
-      totalPages: Math.ceil(totalCount / limit),
-      currentPage: page,
-    });
-  } catch (error) {
-    return new NextResponse('Internal Error', { status: 500 });
+  if (!session || session.user.role !== "OWNER") {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
+
+  try{
+    const ownerbusinesses = await db.business.findMany({
+      where: { ownerId: session.user.id },
+      orderBy: { createdAt: 'desc' },
+    });
+    return NextResponse.json(ownerbusinesses);
+  }catch(error){
+    return NextResponse.json({ message: "Internal Server Error" }, { status: 500
+    })
+  }
+
 }
